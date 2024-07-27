@@ -55,7 +55,7 @@ func _physics_process(delta):
         velocity -= DF * delta
         velocity += spinforce * delta
 
-        # Update the position of the ball
+        # Update the position 
         global_transform.origin += velocity * delta
 
 
