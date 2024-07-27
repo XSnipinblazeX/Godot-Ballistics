@@ -1,0 +1,21 @@
+Got basic trajectory down in godot.
+
+Magnus effect is simulated with rpm on the axis. Closely represents reference data and visual 
+
+Only problems so far is anything beyond 50m/s is hard to see on mobile. I will work on a debug line or some slow mo.
+
+Next up on the to do for external ballistics:
+
+Physically accurate linear drag (angular is working)
+Get high velocity projectiles to work
+Hit Detection
+Wind
+Environment Effects
+      Temperature 
+      Air Density and pressure
+       Humidity
+ 
+
+Next in Queue
+    Terminal Ballistics 
+     Internal Ballistics
