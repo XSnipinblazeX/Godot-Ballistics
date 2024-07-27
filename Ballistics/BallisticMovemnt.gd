@@ -3,7 +3,7 @@
 #except I don't have the hit interactions yet
 #this so far is just a basic Ballistic trajectory 
 
-
+#just add to a node change the launch values (spin direction, velocity) and it should work
 
 extends MeshInstance3D # extends any node as long as it doesn't affect the gravity and velocity
 
