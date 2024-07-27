@@ -1,3 +1,10 @@
+#initially made by Aj8841/Xsnipinblazex
+#follows same principles as my unity Ballistic solution
+#except I don't have the hit interactions yet
+#this so far is just a basic Ballistic trajectory 
+
+
+
 extends MeshInstance3D # extends any node as long as it doesn't affect the gravity and velocity
 
 var mass = 0.0167 #mass of the object In kg
