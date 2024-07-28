@@ -12,7 +12,7 @@ currently simulates:
           Linear Drag
           Rotational Drag
           Magnus Effect
-          cylindrical/capsule projectiles
+          
 
 To do:
 
