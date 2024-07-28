@@ -12,6 +12,7 @@ currently simulates:
           Linear Drag
           Rotational Drag
           Magnus Effect
+          non spherical projectiles
 
 To do:
 
