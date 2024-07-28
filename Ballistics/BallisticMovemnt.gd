@@ -5,6 +5,7 @@
 # this is all I deem necessary for a realistic trajectory for all types of projectiles. Magnus effect simulates magnus and possibly spin drift, haven't seen it yet since I'm making this on godot mobile
 # about 4/5 accurate when compared to my references using the F5 Sports Pitchlogic System
 
+#updated 7/28/2024
 
 
 extends MeshInstance3D # extends any node as long as it doesn't affect the gravity and velocity
@@ -16,7 +17,7 @@ var Active = false # for future initialization
 var iV = 39.294816 # 87.9 mph iV: Initial velocity in m/s
 var velocity = Vector3(0, 0, 0) # this is the actual velocity during runtime
 var direction = Vector3(0, -0.04, -1) # direction of travel degrees/90
-var spin = Vector3(-1252, 1480, 858) # spin rate in rpm (sidespin, backspin, riflespin)
+var spin = Vector3(1252, 1480, -858) # spin rate in rpm (sidespin +(CW), backspin +(CCW), riflespin +(CW)) *see commit on github for more infoaa
 
 var angDamp = 0.2 # rotational drag Coefficient 
 var linDamp = 0.35 # linear drag Coefficient 
@@ -35,7 +36,7 @@ var lastPos = Vector3()
 
 func _ready():
     velocity = iV * direction # fires in direction with velocoty
-    spin *= Vector3(-1, 1, -1) # makes spin relative to F5 Sports’ pitchlogic system
+    # spin *= Vector3(-1, 1, -1) # makes spin relative to F5 Sports’ pitchlogic system
     Active = true
 
     # Get the RayCast node
@@ -61,17 +62,4 @@ func _physics_process(delta):
         global_transform.origin += velocity * delta
 
 
-        # hit detection? Idk I'm shitty at gdscript
-
-        # Perform raycast to check for collision behind the ball
-        var raycastDir = lastPos - global_transform.origin
-        raycast.cast_to = raycastDir.normalized() * raycastDir.length()  # Set the raycast direction
-        raycast.force_raycast_update()
-
-        if raycast.is_colliding():
-            # Ball will collide with something, so revert back to the last position
-            global_transform.origin = lastPos
-            velocity = Vector3(0, 0, 0) #stops projectile for now
-
-
-
+        #do hit check here
