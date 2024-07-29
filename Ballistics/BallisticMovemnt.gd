@@ -42,7 +42,7 @@ func GraphVelocity(initV):
     var newVelo = initV
     var deltaVelo = initV
     for t in range(0, lifetime / timeStep):
-        dt = t * timestep #delta time
+        dt = t * timeStep #delta time
         newVelo = Move(Vector3.ZERO, initV, dt, false, false)
         deltaVelo = newVelo - lastVelo
         deltaVelocity.add_point(Vector2(dt / lifetime), deltaVelo)
