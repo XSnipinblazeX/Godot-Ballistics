@@ -6,84 +6,70 @@
 # Magnus effect simulates magnus and possibly spin drift, haven't seen it yet since I'm making this on Godot mobile
 # About 4/5 accurate when compared to my references using the F5 Sports Pitchlogic System
 # Updated 7/28/2024
-# Updated 7/29/24 10:37AM PST
-# Updated 7/29/24 10:49AM PST
 
-extends MeshInstance3D
+extends MeshInstance3D # Extends any node as long as it doesn't affect the gravity and velocity
 
-var mass = 0.0167
-var Active = false
-var iV = 39
-var initial_velocity = Vector3()
-var direction = Vector3(0, -0.04, -1)
-var spin = Vector3(1252, 1480, -858)
-var angDamp = 0.2
-var linDamp = 0.35
-var Dia = 0.075
-var area = 0.01723
-var Air_density = 1.225
-const c = 1
-var rps = 2 * PI / 60
-var GRAV = -9.81
-var MoI = 0.09
-var airRes = 0.5 * Air_density * area
+var mass = 0.0167 # Mass of the object in kg
+var Active = false # For future initialization
+var iV = 39 # iV: Initial velocity in m/s
+var velocity = Vector3(0, 0, 0) # This is the actual velocity during runtime
+var direction = Vector3(0, -0.04, -1) # Direction of travel degrees/90
+var spin = Vector3(1252, 1480, -858) # Spin rate in rpm (sidespin +(CW), backspin +(CCW), riflespin +(CW)) *see commit on GitHub for more info
 
-var lastPos = global_transform.origin
-var current_time = 0.0  # Initialize current time
+var angDamp = 0.2 # Rotational drag coefficient 
+var linDamp = 0.35 # Linear drag coefficient 
+var Dia = 0.075 # Diameter of object 
+var area = 0.01723 # Cross-sectional area
 
-# Pre-calculated change in velocity data
-var delta_velocity_data = []
-var max_time = 5.0
-var time_step = 0.1
+var Air_density = 1.225 
+const c = 1 # A constant for scaling if needed
+var rps = 2 * PI / 60 # RPM to radians a second conversion
+var GRAV = -9.81 # Acceleration of gravity in m/s
+var MoI = 0.09  # Moment of inertia 
+var airRes = 0.5 * Air_density * area # Air resistance factor
+
+var raycast
+var lastPos = global_transform.origin 
 
 func _ready():
-    initial_velocity = iV * direction
+    velocity = iV * direction # Fires in direction with velocity
+    # spin *= Vector3(-1, 1, -1) # Makes spin relative to F5 Sports’ Pitchlogic system
     Active = true
-    compute_delta_velocities()
 
-func compute_delta_velocities():
-    var current_velocity = initial_velocity
-    for t in range(0, max_time / time_step):
-        var delta_time = t * time_step
-        var previous_velocity = current_velocity
-        current_velocity = Move(lastPos, current_velocity, time_step)
-        
-        # Calculate change in velocity (stored as negative for forces adding to velocity)
-        var delta_velocity = previous_velocity - current_velocity
-        delta_velocity_data.append({
-            "time": delta_time,
-            "delta_velocity": delta_velocity
-        })
+    # Get the RayCast node
+    raycast = $RayCast
+    raycast.enabled = true
 
-func get_delta_velocity_at_time(target_time):
-    for data in delta_velocity_data:
-        if data["time"] >= target_time:
-            return data["delta_velocity"]
-    return null
-
-func Move(pos, _velocity, delta):
-    _velocity.y += GRAV * delta * c
-    var drag_force = airRes * _velocity * _velocity * linDamp
+func Move(pos, _velocity, delta, returnNewPos, force):
+    # Accelerate to gravity
+    _velocity.y += GRAV * delta * c 
+    
+    var drag_force = airRes * _velocity * _velocity * linDamp # Linear drag
     _velocity -= drag_force * delta
-
-    var magnus_force = (spin * rps) * (Dia / 2) / (mass * (_velocity.length() * 2))
-    var AngDrag = -angDamp * spin * (Dia / 2)
+    
+    var magnus_force = (spin * rps) * (Dia / 2) / (mass * (_velocity.length() * 2))  # Get the force of the magnus effect
+    var AngDrag = -angDamp * spin * (Dia / 2) 
     var torque = -(Dia / 2) * AngDrag
     if spin.length() < 0:
         torque *= -1
-    var angAccel = torque / MoI
+    var angAccel = torque / MoI # Angular drag
     spin -= angAccel
-    _velocity += magnus_force * delta  # Update velocity with Magnus force
+    _velocity += magnus_force * delta
     
     return _velocity
 
+var currentPos = Vector3()
+var nextPos = Vector3()
+
 func _physics_process(delta):
     if Active:
-        current_time += delta  # Increment current time by delta
-        var delta_velocity_at_time = get_delta_velocity_at_time(current_time)
+        velocity = Move(lastPos, velocity, delta, false, true)
+        global_transform.origin += velocity * delta
+        currentPos = global_transform.origin
+        nextPos = currentPos * Move(currentPos, velocity, delta, true, false) * delta # This should allow for hit detection because this is a frame ahead
         
-        if delta_velocity_at_time:
-            # Update the velocity by subtracting the change in velocity
-            
-            global_transform.origin += (initial_velocity - delta_velocity_at_time) * delta
-            lastPos = global_transform.origin
+        currentPos = global_transform.origin
+        
+        lastPos = currentPos
+
+        # Do hit check here
