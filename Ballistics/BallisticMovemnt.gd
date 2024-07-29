@@ -13,7 +13,7 @@ var mass = 0.0167 # Mass of the object in kg
 var Active = false # For future initialization
 var iV = 39 # iV: Initial velocity in m/s
 var velocity = Vector3(0, 0, 0) # This is the actual velocity during runtime
-export (Curve) var deltaVelocity = Curve.new()
+var deltaVelocity = Curve.new()
 var direction = Vector3(0, -0.04, -1) # Direction of travel degrees/90
 var spin = Vector3(1252, 1480, -858) # Spin rate in rpm (sidespin +(CW), backspin +(CCW), riflespin +(CW)) *see commit on GitHub for more info
 
@@ -36,12 +36,15 @@ var timeStep = 0.1
 var raycast
 var lastPos = global_transform.origin 
 
-func GraphVelocity(initV)
+func GraphVelocity(initV):
     var lastvelo = initV
-    for t in range(0, lifetime / timeStep)
-        dt = t * time_step #delta time
-        var newVelo = Move(Vector3.ZERO, initV, dt, false, false)
-        var deltaVelo = newVelo - lastVelo
+    var dt = 0
+    var newVelo = initV
+    var deltaVelo = initV
+    for t in range(0, lifetime / timeStep):
+        dt = t * timestep #delta time
+        newVelo = Move(Vector3.ZERO, initV, dt, false, false)
+        deltaVelo = newVelo - lastVelo
         deltaVelocity.add_point(Vector2(dt / lifetime), deltaVelo)
         lastVelo = newVelo 
 
