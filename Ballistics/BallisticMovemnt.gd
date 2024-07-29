@@ -13,6 +13,7 @@ var mass = 0.0167 # Mass of the object in kg
 var Active = false # For future initialization
 var iV = 39 # iV: Initial velocity in m/s
 var velocity = Vector3(0, 0, 0) # This is the actual velocity during runtime
+export (Curve) var deltaVelocity = Curve.new()
 var direction = Vector3(0, -0.04, -1) # Direction of travel degrees/90
 var spin = Vector3(1252, 1480, -858) # Spin rate in rpm (sidespin +(CW), backspin +(CCW), riflespin +(CW)) *see commit on GitHub for more info
 
@@ -28,12 +29,26 @@ var GRAV = -9.81 # Acceleration of gravity in m/s
 var MoI = 0.09  # Moment of inertia 
 var airRes = 0.5 * Air_density * area # Air resistance factor
 
+var lifetime = 10
+var timeStep = 0.1
+
+
 var raycast
 var lastPos = global_transform.origin 
+
+func GraphVelocity(initV)
+    var lastvelo = initV
+    for t in range(0, lifetime / timeStep)
+        dt = t * time_step #delta time
+        var newVelo = Move(Vector3.ZERO, initV, dt, false, false)
+        var deltaVelo = newVelo - lastVelo
+        deltaVelocity.add_point(Vector2(dt / lifetime), deltaVelo)
+        lastVelo = newVelo 
 
 func _ready():
     velocity = iV * direction # Fires in direction with velocity
     # spin *= Vector3(-1, 1, -1) # Makes spin relative to F5 Sports’ Pitchlogic system
+    GraphVelocity(velocity)
     Active = true
 
     # Get the RayCast node
@@ -60,10 +75,11 @@ func Move(pos, _velocity, delta, returnNewPos, force):
 
 var currentPos = Vector3()
 var nextPos = Vector3()
-
+var current_time = 0
 func _physics_process(delta):
     if Active:
-        velocity = Move(lastPos, velocity, delta, false, true)
+        current_time += delta
+        velocity = velocityCurve.interpolate(current_time / lifetime) #Move(lastPos, velocity, delta, false, true)
         global_transform.origin += velocity * delta
         currentPos = global_transform.origin
         nextPos = currentPos * Move(currentPos, velocity, delta, true, false) * delta # This should allow for hit detection because this is a frame ahead
