@@ -145,15 +145,16 @@ func _physics_process(delta: float):
 		
 		var delta_velocity_at_time = get_delta_velocity_at_time(current_time)
 		var rpm = get_current_rpm()
-		var magnus_force_at_rpm = get_magnus_force(rpm) # Use cached Magnus force
+		var magnus_force_at_rpm = get_magnus_force(rpm)# Use cached Magnus force
 		
 		if delta_velocity_at_time:
 			velocity -= delta_velocity_at_time * time_step 
-			global_transform.origin += (velocity + magnus_force_at_rpm) * delta
+			global_transform.origin += velocity * delta
+            global_transform.origin += magnus_force_at_rpm / velocity.length() * delta
 			lastPos = global_transform.origin
 			Spin(delta)
 			
-			print("Magnus Force at RPM ", rpm, ": ", magnus_force_at_rpm )
+			print("Magnus Force at RPM ", rpm / rps, ": ", magnus_force_at_rpm )
 		
 		if current_time > max_time:
 			Active = false
@@ -241,4 +242,3 @@ func load_data() -> bool:
 		print("File does not exist.")
 	
 	return false
-
