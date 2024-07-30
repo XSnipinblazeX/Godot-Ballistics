@@ -145,8 +145,7 @@ func save_data():
                         "y": d["delta_velocity"].y,
                         "z": d["delta_velocity"].z
                     }
-                }
-            ),
+                }),
             "magnus_data": magnus_data.map(func(m) -> Dictionary:
                 return {
                     "time": m["time"],
@@ -155,8 +154,7 @@ func save_data():
                         "y": m["magnus_force"].y,
                         "z": m["magnus_force"].z
                     }
-                }
-            )
+                })
         }
         
         var json = JSON.new()  # Create a new JSON instance
