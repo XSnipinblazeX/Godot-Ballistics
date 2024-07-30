@@ -150,7 +150,7 @@ func _physics_process(delta: float):
 		if delta_velocity_at_time:
 			velocity -= delta_velocity_at_time * time_step 
 			global_transform.origin += velocity * delta
-            global_transform.origin += magnus_force_at_rpm / velocity.length() * delta
+            global_transform.origin += magnus_force_at_rpm / (2 * velocity.length()) * delta
 			lastPos = global_transform.origin
 			Spin(delta)
 			
