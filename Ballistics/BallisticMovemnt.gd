@@ -1,3 +1,7 @@
+#Ballistic Trajectory Simulation by Aj8841 aka XsnipinblazeX
+
+
+
 extends MeshInstance3D
 
 var mass = 0.0167
