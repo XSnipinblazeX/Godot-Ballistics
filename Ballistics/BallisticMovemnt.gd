@@ -48,7 +48,7 @@ func compute_delta_velocities():
         velocity = current_velocity 
         
         # Calculate Magnus force at this time
-        var magnus_force = Magnus(current_velocity)
+        var magnus_force = Magnus(current_velocity, delta_time)
         magnus_data.append({
             "time": delta_time,
             "magnus_force": magnus_force
@@ -73,7 +73,9 @@ func get_magnus_force_at_time(target_time):
             return data["magnus_force"]
     return magnus_data[-1]["magnus_force"] if magnus_data.size() > 0 else Vector3.ZERO
 
-func Magnus(_velocity):
+func Magnus(_velocity, delta):
+    Spin(delta) # make the projectile slow down
+
     var magnus_force = (spin * rps) * (Dia / 2) / (mass * (_velocity.length() * 2))
     return magnus_force 
 
@@ -107,7 +109,7 @@ func _physics_process(delta):
             # Move the object
             global_transform.origin += (velocity + magnus_force_at_time) * delta
             lastPos = global_transform.origin
-            Spin(delta)
+            # Spin(delta)
             
             # Debug output
             print("Time: ", current_time, " Velocity: ", velocity, " Position: ", global_transform.origin)
