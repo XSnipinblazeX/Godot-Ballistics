@@ -46,4 +46,11 @@ func gun_go():
         knap = 0.85 + (tnt - 3) * (0.75 - 0.85) / (4 - 3)
     
     var result = (((pow(speed, 1.43) * pow(mass, 0.71)) / (pow(kfbr, 1.43) * pow(caliber / 100, 1.07))) * 100 * knap * kf_apcbc)
+
+
+#end script
+
+https://discussions.unity.com/t/free-bullet-ballistics-script-pejsa-method/634432
+
+^^this is a ballistic trajectory I find interesting for unity
     
