@@ -104,7 +104,7 @@ func compute_data():
 	Active = true
 	print("Data simulated and computed.")
 
-func Move(pos: Vector3, _velocity: Vector3, delta: float, returnNewPos=false, force=false) -> Vector3:
+func Move(_pos: Vector3, _velocity: Vector3, delta: float, _returnNewPos=false, _force=false) -> Vector3:
 	_velocity.y += GRAV * delta
 	
 	var drag_force = airRes * _velocity.length_squared() * linDamp
@@ -152,8 +152,19 @@ func _physics_process(delta: float):
 			global_transform.origin += velocity * delta
 			lastPos = global_transform.origin
 			
-			spin -= delta_spin_at_time * time_step
-			Spin(delta)
+			if(spin.x < 0):
+				spin.x += delta_spin_at_time * time_step
+			else:
+				spin.x += delta_spin_at_time * time_step
+			if(spin.y < 0):
+				spin.y += delta_spin_at_time * time_step
+			else:
+				spin.y += delta_spin_at_time * time_step
+			if(spin.z < 0):
+				spin.z += delta_spin_at_time * time_step
+			else:
+				spin.z += delta_spin_at_time * time_step
+			#Spin(delta)
 		
 		if current_time > max_time:
 			Active = false
