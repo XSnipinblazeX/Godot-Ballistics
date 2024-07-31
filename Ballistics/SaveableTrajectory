@@ -39,12 +39,20 @@ var velocity_data: Array = []
 var spin_data: Array = []
 var velocity: Vector3
 var Active: bool = false
+@export var raycast: RayCast3D  # Add a reference to the RayCast node
+@export var collision_handler: Node
 
 func _ready():
     print("start scene")
     velocity = iV * direction
     lastPos = global_transform.origin
     Active = false
+
+    #set up collision handler
+    # Initialize the CollisionHandler
+    
+    #add_child(collision_handler)
+
 
     var full_path = file_path + ID + ".json"
     print("Initializing JSON")
@@ -141,12 +149,49 @@ func Spin(delta: float):
     spin -= angAccel * delta
     print("new spin vector ", spin)
 
+var lastHitTime = 0
+var isColliding = false
 func _physics_process(delta: float):
+    var space_state = get_world_3d().direct_space_state
+    var predicted_position = global_transform.origin + velocity * delta
+    var origin = global_transform.origin
+    var end = predicted_position
+    var query = PhysicsRayQueryParameters3D.create(origin, end)
+    query.exclude = [self]
+    query.collide_with_areas = true
+    var result = space_state.intersect_ray(query)
+    if result and not isColliding:
+        isColliding = true
+        print("hit")
+        Active = false
+        lastHitTime = current_time
+        global_transform.origin = result.position
+        var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin)
+        print(collision_response)
+        var newSpeed = collision_response["velocity"]
+        var newDirection = velocity.reflect(result.normal).normalized()
+        velocity = newSpeed * newDirection
+        spin = collision_response["spin"]
+        Active = true
     if Active:
+        isColliding = false
+        
+        
         current_time += delta
         
-        var delta_velocity_at_time = get_delta_velocity_at_time(current_time)
-        var delta_spin_at_time = get_delta_spin_at_time(current_time)
+        # Predict the next position
+
+            #Active = false #stop the simulation for now
+        # Update RayCast to check from current to predicted position
+        ##raycast.cast_to = predicted_position - global_transform.origin
+        #raycast.force_raycast_update()
+
+
+       ###    print("Hit detected with: ", collider.name)
+        
+        
+        var delta_velocity_at_time = get_delta_velocity_at_time(current_time- lastHitTime)
+        var delta_spin_at_time = get_delta_spin_at_time(current_time - lastHitTime)
         
         if delta_velocity_at_time:
             velocity -= delta_velocity_at_time * time_step 
@@ -170,7 +215,10 @@ func _physics_process(delta: float):
                newSpinZ -= delta_spin_at_time.z * time_step
             spin = Vector3(newSpinX, newSpinY, newSpinZ)
             #Spin(delta)
+
         
+
+
         if current_time > max_time:
             Active = false
 
