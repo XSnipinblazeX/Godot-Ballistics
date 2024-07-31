@@ -8,7 +8,7 @@
 #saves change in motion to json to reduce math workload
 # Updated 7/30/2024
 
-
+#won't work unless customcollision handler is provided which I haven't yet
 
 
 extends MeshInstance3D
