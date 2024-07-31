@@ -6,9 +6,9 @@
 # Magnus effect simulates magnus and possibly spin drift, haven't seen it yet since I'm making this on Godot mobile
 # About 4/5 accurate when compared to my references using the F5 Sports Pitchlogic System
 #saves change in motion to json to reduce math workload
-# Updated 7/30/2024
+# Updated 7/31/2024
 
-#won't work unless customcollision handler is provided which I haven't yet
+
 
 
 extends MeshInstance3D
@@ -166,12 +166,12 @@ func _physics_process(delta: float):
         Active = false
         lastHitTime = current_time
         global_transform.origin = result.position
-        var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin)
+        var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin, result.normal)
         print(collision_response)
-        var newSpeed = collision_response["velocity"] * 0.5
-        var newDirection = velocity.bounce(-result.normal).normalized() * direction
-        velocity = newSpeed * newDirection
-        spin = Vector3.ZERO
+        velocity = Vector3.ZERO
+        velocity = collision_response["velocity"]
+        spin -= collision_response["spin"]
+        spin *= 0.1
         Active = true
     if Active:
         isColliding = false
