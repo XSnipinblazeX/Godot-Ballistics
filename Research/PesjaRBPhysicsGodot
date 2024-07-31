@@ -1,0 +1,138 @@
+extends Rigidbody3D
+
+@export var ballistic_coefficient: float
+@export var bullet_mass: float
+@export var bullet_diameter: float
+@export var bullet_length: float
+@export var muzzle_velocity: float
+@export var barrel_twist: float
+@export var temperature: float
+@export var air_pressure: float
+@export var current_latitude: float
+
+@export var wind_vect: Vector3
+
+enum GModel { G1, G2, G5, G6, G7, G8 }
+@export var bullet_g_model: GModel
+
+var rb: RigidBody3D
+var GRAVITY_AMOUNT: float
+var DT: float
+var START_TIME: float
+
+var velocity_magnitude: float
+var retardation: float
+var drag: float
+
+var stability_factor: float
+var time_of_flight: float
+var bullet_direction: float
+
+var distance: float
+
+var START_POSITION: Vector3
+var GRAVITY: Vector3
+var previous_drift: Vector3
+var vector_spin: Vector3
+var transonic_accel: Vector3
+var vector_drag: Vector3
+var true_velocity: Vector3
+var vector_centripetal: Vector3
+var vector_coriolis: Vector3
+var previous_coriolis_deflection: Vector3
+
+func _ready():
+    rb = $RigidBody3D
+    convert_units()
+    set_initial_parameters()
+    calculate_stability_factor()
+
+func _physics_process(delta: float):
+    DT = delta
+    get_speed()
+    get_tof()
+    get_position()
+    calculate_retardation()
+    calculate_drag()
+    calculate_spin_drift()
+    calculate_coriolis()
+    update_velocity()
+
+func set_initial_parameters():
+    START_TIME = OS.get_ticks_msec() / 1000.0
+    START_POSITION = rb.global_transform.origin
+    GRAVITY_AMOUNT = -9.80665
+    GRAVITY = Vector3(0, GRAVITY_AMOUNT * DT, 0)
+    muzzle_velocity *= 0.3048
+
+func calculate_stability_factor():
+    var l_calibers = bullet_length / bullet_diameter
+    var twist_calibers = barrel_twist / bullet_diameter
+    stability_factor = 30 * bullet_mass / (pow(twist_calibers, 2) * pow(bullet_diameter, 3) * l_calibers * (1 + pow(l_calibers, 2)))
+    stability_factor *= pow((muzzle_velocity / 0.3048) / 2800.0, 1.0 / 3.0)
+    stability_factor *= (temperature + 273.15) / (15 + 273.15) * 1013.25 / air_pressure
+
+func convert_units():
+    current_latitude = deg2rad(current_latitude)
+    temperature = (temperature - 32) * 5.0 / 9.0
+    air_pressure *= 33.863886666718315
+
+func get_speed():
+    velocity_magnitude = rb.linear_velocity.length()
+    true_velocity = rb.linear_velocity + wind_vect * DT
+
+func get_tof():
+    time_of_flight = (OS.get_ticks_msec() / 1000.0) - START_TIME
+
+func get_position():
+    bullet_direction = atan2(rb.linear_velocity.z, rb.linear_velocity.x)
+    distance = START_POSITION.distance_to(rb.global_transform.origin)
+
+func calculate_retardation():
+    var vel_fps = velocity_magnitude * 3.2808399
+    var A = -1.0
+    var M = -1.0
+
+    match bullet_g_model:
+        GModel.G1:
+            if vel_fps > 4230: A = 1.477404177730177e-04; M = 1.9565
+            elif vel_fps > 3680: A = 1.920339268755614e-04; M = 1.925
+            elif vel_fps > 3450: A = 2.894751026819746e-04; M = 1.875
+            elif vel_fps > 3295: A = 4.349905111115636e-04; M = 1.825
+            elif vel_fps > 3130: A = 6.520421871892662e-04; M = 1.775
+            elif vel_fps > 2960: A = 9.748073694078696e-04; M = 1.725
+            elif vel_fps > 2830: A = 1.453721560187286e-03; M = 1.675
+            elif vel_fps > 2680: A = 2.162887202930376e-03; M = 1.625
+            elif vel_fps > 2460: A = 3.209559783129881e-03; M = 1.575
+            elif vel_fps > 2225: A = 3.904368218691249e-03; M = 1.55
+            elif vel_fps > 2015: A = 3.222942271262336e-03; M = 1.575
+            elif vel_fps > 1890: A = 2.203329542297809e-03; M = 1.625
+            elif vel_fps > 1810: A = 1.511001028891904e-03; M = 1.675
+            elif vel_fps > 1730: A = 8.609957592468259e-04; M = 1.75
+            elif vel_fps > 1595: A = 4.086146797305117e-04; M = 1.85
+            elif vel_fps > 1520: A = 1.954473210037398e-04; M = 1.95
+            elif vel_fps > 1420: A = 5.431896266462351e-05; M = 2.125
+            elif vel_fps > 1360: A = 8.847742581674416e-06; M = 2.375
+            elif vel_fps > 1315: A = 1.456922328720298e-06; M = 2.625
+            elif vel_fps > 1280: A = 2.419485191895565e-07; M = 2.875
+            elif vel_fps > 1220: A = 1.657956321067612e-08; M = 3.25
+            elif vel_fps > 1185: A = 4.745469537157371e-10; M = 3.75
+            elif vel_fps > 1150: A = 1.379746590025088e-11; M = 4.25
+            elif vel_fps > 1100: A = 4.070157961147882e-13; M = 4.75
+            elif vel_fps > 1060: A = 2.938236954847331e-14; M = 5.125
+            elif vel_fps > 1025: A = 1.228597370774746e-14; M = 5.25
+            elif vel_fps > 980: A = 2.916938264100495e-14; M = 5.125
+            elif vel_fps > 945: A = 3.855099424807451e-13; M = 4.75
+            elif vel_fps > 905: A = 1.185097045689854e-11; M = 4.25
+            elif vel_fps > 860: A = 3.566129470974951e-10; M = 3.75
+            elif vel_fps > 810: A = 1.045513263966272e-08; M = 3.25
+            elif vel_fps > 780: A = 1.291159200846216e-07; M = 2.875
+            elif vel_fps > 750: A = 6.824429329105383e-07; M = 2.625
+            elif vel_fps > 700: A = 3.569169672385163e-06; M = 2.375
+            elif vel_fps > 640: A = 1.839015095899579e-05; M = 2.125
+            elif vel_fps > 600: A = 5.71117468873424e-05; M = 1.950
+            elif vel_fps > 550: A = 9.226557091973427e-05; M = 1.875
+            elif vel_fps > 250: A = 9.337991957131389e-05; M = 1.875
+            elif vel_fps > 100: A = 7.225247327590413e-05; M = 1.925
+            elif vel_fps > 65: A = 5.792684957074546e-05; M = 1.975
+            elif vel_fps > 0: A = 5.206214107320588
