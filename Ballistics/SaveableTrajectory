@@ -168,10 +168,10 @@ func _physics_process(delta: float):
         global_transform.origin = result.position
         var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin)
         print(collision_response)
-        var newSpeed = collision_response["velocity"]
-        var newDirection = velocity.reflect(result.normal).normalized()
+        var newSpeed = collision_response["velocity"] * 0.5
+        var newDirection = velocity.bounce(-result.normal).normalized() * direction
         velocity = newSpeed * newDirection
-        spin = collision_response["spin"]
+        spin = Vector3.ZERO
         Active = true
     if Active:
         isColliding = false
