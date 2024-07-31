@@ -1,0 +1,42 @@
+#This is the custom collision handling for the ballistic simulation
+#this contains all *possible* outcomes of a projectile interaction with another solid material
+#the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
+#otherwise it will just directly change the velocity and spin based on the interaction
+#this is needed for the SaveableTrajectory script to work. Needs to be added to a child node then assigned in the inspector
+
+
+extends Node
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+    pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+    pass
+    
+func handle_collision(object, collider, velocity, spin, _normal) -> Dictionary:
+    var collision_response = {
+        "velocity": velocity,
+        "spin": spin
+    }
+
+    # Example logic for bouncing off a surface
+    # Calculate the reflection of the velocity using the collision normal
+    var reflection = velocity.bounce(_normal)
+    
+    # Apply some coefficient of restitution (bounciness)
+    var restitution = 0.3  # This can be adjusted
+    collision_response.velocity = reflection * restitution
+    velocity = collision_response.velocity
+    var tangential_velocity = velocity - velocity.dot(_normal) * _normal
+    var friction_coefficient = 0.1  # This can be adjusted
+    var spin_change = tangential_velocity * friction_coefficient * (1 - (_normal.dot(velocity.normalized())))
+    
+    # Apply the spin change
+    collision_response.spin += spin_change
+    
+    # Update spin (simple inversion for now, can be more complex based on the surface)  # Invert spin for simplicity, reduce spin
+    return collision_response
