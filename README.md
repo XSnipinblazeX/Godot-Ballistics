@@ -16,13 +16,13 @@ currently simulates:
 
 To do:
 
-Fix Hit Detection 
+Fix Hit Detection # Fixed 7/31/24
 More advanced external ballistics?
      Temperature ?
      Wind?
      Coriolis?
      More Advanced Air Calculations?
-Bring heavy calculations into a preloaded graph per projectile (is that even possible in godot?)
+Bring heavy calculations into a preloaded graph per projectile (is that even possible in godot?) # yes fixed 7/30/24
 
 Database for projectiles
 
