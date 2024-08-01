@@ -49,6 +49,80 @@ Actual full formula:
 
 
 
+# CHATGPT formulas:
+
+To determine the maximum angle of penetration (critical angle) before a bullet bounces off a metal target using input values of mass, diameter, and speed, we can use a physics-based approach involving the material properties of the target and the bullet's kinetic energy. Here's a step-by-step method to derive the critical angle:
+
+### Step-by-Step Method
+
+1. **Input Variables:**
+   - Mass of the bullet (\( m \)): in kg
+   - Diameter of the bullet (\( d \)): in meters
+   - Speed of the bullet (\( v \)): in m/s
+   - Yield strength of the target material (\( \sigma_y \)): in Pa (can be assumed based on common metals)
+   - Thickness of the target (\( t \)): in meters
+
+2. **Derived Variables:**
+   - Cross-sectional area of the bullet (\( A \)):
+
+     \[ A = \pi \left( \frac{d}{2} \right)^2 \]
+
+3. **Kinetic Energy of the Bullet:**
+
+   \[ E_k = \frac{1}{2} m v^2 \]
+
+4. **Penetration Condition:**
+   The bullet will penetrate if the normal component of the kinetic energy is sufficient to overcome the material resistance of the target. The critical angle \(\theta_c\) is the maximum angle at which the bullet will just penetrate.
+
+   \[ \frac{1}{2} m v^2 \cos^2(\theta_c) \geq t \cdot A \cdot \sigma_y \]
+
+5. **Solving for the Critical Angle:**
+   Rearrange the penetration condition to solve for \(\cos(\theta_c)\):
+
+   \[ \cos^2(\theta_c) \geq \frac{2 t A \sigma_y}{m v^2} \]
+
+   Taking the square root and then the arccosine:
+
+   \[ \cos(\theta_c) \geq \sqrt{\frac{2 t A \sigma_y}{m v^2}} \]
+
+   \[ \theta_c \leq \arccos\left(\sqrt{\frac{2 t A \sigma_y}{m v^2}}\right) \]
+
+### Example Calculation
+
+Assume:
+- Mass of bullet, \( m \) = 0.01 kg (10 grams)
+- Diameter of bullet, \( d \) = 0.01 m (10 mm)
+- Speed of bullet, \( v \) = 800 m/s
+- Yield strength of target material, \( \sigma_y \) = 1.5 GPa (1.5 \times 10^9 Pa)
+- Thickness of target, \( t \) = 0.01 m (10 mm)
+
+1. **Calculate the Cross-Sectional Area:**
+
+   \[ A = \pi \left( \frac{0.01}{2} \right)^2 = \pi \left( 0.005 \right)^2 = \pi \cdot 0.000025 = 0.00007854 \text{ m}^2 \]
+
+2. **Calculate the Term Inside the Square Root:**
+
+   \[ \frac{2 t A \sigma_y}{m v^2} = \frac{2 \cdot 0.01 \cdot 0.00007854 \cdot 1.5 \times 10^9}{0.01 \cdot 800^2} \]
+
+3. **Simplify the Expression:**
+
+   \[ = \frac{2 \cdot 0.01 \cdot 0.00007854 \cdot 1.5 \times 10^9}{0.01 \cdot 640000} \]
+   \[ = \frac{2 \cdot 0.00007854 \cdot 1.5 \times 10^9}{640000} \]
+   \[ = \frac{0.00015708 \cdot 1.5 \times 10^9}{640000} \]
+   \[ = \frac{0.23562 \times 10^9}{640000} \]
+   \[ = 368.15625 \]
+
+   Since \(\cos(\theta_c)\) must be between -1 and 1, this result indicates that the initial assumptions might lead to penetration at all angles for the given conditions. In realistic scenarios, material properties and empirical factors must be accurately considered.
+
+4. **Taking the Square Root and Arccosine:**
+
+   \[ \sqrt{\frac{2 t A \sigma_y}{m v^2}} \approx 19.19 \]
+
+   Since this value exceeds 1, it suggests that under the given conditions, penetration is likely at all angles. For practical purposes, re-evaluate with adjusted parameters or consider an empirical approach.
+
+
+This function will give you the maximum angle of penetration before the bullet ricochets off the target. Adjust the inputs based on your specific scenario and material properties for accurate results.
+
 
 https://discussions.unity.com/t/free-bullet-ballistics-script-pejsa-method/634432
 
