@@ -6,7 +6,7 @@
 # Magnus effect simulates magnus and possibly spin drift, haven't seen it yet since I'm making this on Godot mobile
 # About 4/5 accurate when compared to my references using the F5 Sports Pitchlogic System
 #saves change in motion to json to reduce math workload
-# Updated 7/31/2024
+# Updated 7/30/2024
 
 
 
@@ -31,16 +31,52 @@ extends MeshInstance3D
 @export var time_step: float = 0.1
 @export var file_path: String = "user://cached_data/"  # Editable path in Inspector
 
+@export var tnt: float = 100.0 #mass of tnt in the shell if its aphe
+@export var capped = false #does the shell have a ballistic cap?
+
+
+
+
 # Non-exported variables
 var airRes: float
 var lastPos: Vector3 = Vector3.ZERO
 var current_time: float = 0.0
 var velocity_data: Array = []
 var spin_data: Array = []
+var penetration_data: Array = []
 var velocity: Vector3
 var Active: bool = false
 @export var raycast: RayCast3D  # Add a reference to the RayCast node
 @export var collision_handler: Node
+
+
+var compute_thread: Thread = Thread.new()
+
+
+
+func _get_penetration_over_speed(velocity: float):
+        var cal = Dia * 1000
+        var kfbr = 1900
+        tnt = (tnt / mass) * 100
+        var kf_apcbc = 0.9
+        if capped:
+            kf_apcbc = 1
+        var knap = 0.75
+    
+        if tnt < 0.65:
+            knap = 1
+        elif tnt < 1.6:
+            knap = 1 + (tnt - 0.65) * (0.93 - 1) / (1.6 - 0.65)
+        elif tnt < 2:
+            knap = 0.93 + (tnt - 1.6) * (0.9 - 0.93) / (2 - 1.6)
+        elif tnt < 3:
+            knap = 0.9 + (tnt - 2) * (0.85 - 0.9) / (3 - 2)
+        elif tnt < 4:
+            knap = 0.85 + (tnt - 3) * (0.75 - 0.85) / (4 - 3)
+    
+        var result = (((pow(velocity, 1.43) * pow(mass, 0.71)) / (pow(kfbr, 1.43) * pow(cal / 100, 1.07))) * 100 * knap * kf_apcbc)
+        return result
+
 
 func _ready():
     print("start scene")
@@ -108,7 +144,6 @@ func compute_data():
             "spin": spin,
             "delta_spin": delta_spin
         })
-    
     velocity = iV * direction
     Active = true
     print("Data simulated and computed.")
@@ -123,6 +158,25 @@ func Move(_pos: Vector3, _velocity: Vector3, delta: float, _returnNewPos=false, 
     _velocity += magnus_force * delta
     
     return _velocity
+
+func get_pen_at_speed(speed):
+    return _get_penetration_over_speed(speed)
+    
+func closest(my_number:int, my_array:Array)->int:
+    # Initialize
+    var closest_num:int
+    var closest_delta:int = 0
+    var temp_delta:int = 0
+    # Loop through entire array
+    for i in range(my_array.size()):
+        if my_array[i] == my_number: return my_array[i] # exact match found!
+        temp_delta = int(abs(my_array[i]-my_number))
+        if closest_delta == 0 or temp_delta < closest_delta:
+            closest_num = my_array[i]
+        closest_delta = temp_delta
+    # Return closest number found
+    return closest_num
+
 
 func get_delta_velocity_at_time(target_time: float) -> Vector3:
     for data in velocity_data:
@@ -162,17 +216,18 @@ func _physics_process(delta: float):
     var result = space_state.intersect_ray(query)
     if result and not isColliding:
         isColliding = true
+        print(get_pen_at_speed(velocity.length()), "mm at ", velocity.length(), " m/s")
         print("hit")
         Active = false
         lastHitTime = current_time
         global_transform.origin = result.position
-        var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin, result.normal)
+        var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin, result.normal, get_pen_at_speed(velocity.length()))
         print(collision_response)
         velocity = Vector3.ZERO
         velocity = collision_response["velocity"]
         spin -= collision_response["spin"]
         spin *= 0.1
-        Active = true
+        Active = collision_response.active
     if Active:
         isColliding = false
         
@@ -230,6 +285,7 @@ func save_data():
         var data = {
             "velocity_data": velocity_data,
             "spin_data": spin_data
+            
         }
         
         var json = JSON.new()
@@ -255,7 +311,7 @@ func load_data() -> bool:
                 var data = json.get_data()
                 velocity_data = data.get("velocity_data", [])
                 spin_data = data.get("spin_data", [])
-
+                
                 print("Parsed JSON Data: ", data)
                 
                 for item in velocity_data:
