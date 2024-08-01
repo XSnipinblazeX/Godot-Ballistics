@@ -1,42 +1,92 @@
 #This is the custom collision handling for the ballistic simulation
 #this contains all *possible* outcomes of a projectile interaction with another solid material
 #the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
-#otherwise it will just directly change the velocity and spin based on the interaction
-#this is needed for the SaveableTrajectory script to work. Needs to be added to a child node then assigned in the inspector
+
 
 
 extends Node
 
+func armor_interation(mass, diameter, speed, yield_strength, thickness, angle) -> Dictionary:
+		var p = false
+		var r = false
+		var s = false
+		
+		var area = PI * ((diameter / 2) * (diameter / 2))
+		var result = {
+			"penetration": p,
+			"ricochet": r,
+			"stopped": s
+		}
+		
+		var Vn = speed * cos(angle)
+		var eKn = 0.5 * mass * Vn * Vn
+		var Ep = thickness * area * yield_strength
+		result.p = eKn > Ep
+		print("KE penetrate? ", result.p)
+		result.r = eKn < Ep and (eKn / Ep) < 0.3
+		print("KE ricochet? ", result.r)
+		result.s = (eKn / Ep) > 0.3 and not result.p
+		print("stopped? ", result.s)
+		return result
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-    pass # Replace with function body.
+	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-    pass
-    
-func handle_collision(object, collider, velocity, spin, _normal) -> Dictionary:
-    var collision_response = {
-        "velocity": velocity,
-        "spin": spin
-    }
+	pass
+	
+func handle_collision(object, collider, velocity, spin, _normal, penetration) -> Dictionary:
+	var penetrated = false
+	var depth = 0
+	var ricochet = false
+	var stopped = false
+	var active = false
+	var collision_response = {
+		"velocity": velocity,
+		"spin": spin,
+		"active": active
+	}
 
-    # Example logic for bouncing off a surface
-    # Calculate the reflection of the velocity using the collision normal
-    var reflection = velocity.bounce(_normal)
-    
-    # Apply some coefficient of restitution (bounciness)
-    var restitution = 0.3  # This can be adjusted
-    collision_response.velocity = reflection * restitution
-    velocity = collision_response.velocity
-    var tangential_velocity = velocity - velocity.dot(_normal) * _normal
-    var friction_coefficient = 0.1  # This can be adjusted
-    var spin_change = tangential_velocity * friction_coefficient * (1 - (_normal.dot(velocity.normalized())))
-    
-    # Apply the spin change
-    collision_response.spin += spin_change
-    
-    # Update spin (simple inversion for now, can be more complex based on the surface)  # Invert spin for simplicity, reduce spin
-    return collision_response
+	#dummy thing
+	var theta = acos(abs(velocity.normalized().dot(_normal)))
+	print("Impact Angle (deg): ", rad_to_deg(theta))
+	var armorT = collider.get_penetration_resistance(theta)
+	print("Encountered: ", armorT, "mm")
+	
+	var armorResponse = armor_interation(object.mass, object.Dia, velocity.length(), collider.get_yield_strength(), collider.get_penetration_resistance(0), theta)
+	
+	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.0)):
+		collision_response.velocity = velocity * (1 - (armorT / penetration))
+		collision_response.spin = Vector3.ZERO
+		print("penetrated")
+		collision_response.active = true
+		return collision_response
+	if armorResponse.r:
+		print("ricochet")
+		# Example logic for bouncing off a surface
+		# Calculate the reflection of the velocity using the collision normal
+		var reflection = velocity.bounce(_normal)
+	
+		# Apply some coefficient of restitution (bounciness)
+		var restitution = 0.3  # This can be adjusted
+		collision_response.velocity = reflection * restitution
+		velocity = collision_response.velocity
+		var tangential_velocity = velocity - velocity.dot(_normal) * _normal
+		var friction_coefficient = 0.1  # This can be adjusted
+		var spin_change = tangential_velocity * friction_coefficient * (1 - (_normal.dot(velocity.normalized())))
+	
+		# Apply the spin change
+		collision_response.spin += spin_change
+		collision_response.active = true
+		# Update spin (simple inversion for now, can be more complex based on the surface)  # Invert spin for simplicity, reduce spin
+		return collision_response
+	if armorResponse.s:
+		print("stopped")
+		collision_response.velocity = Vector3.ZERO
+		collision_response.spin = Vector3.ZERO
+		collision_response.active = false
+		return collision_response
+	return collision_response
