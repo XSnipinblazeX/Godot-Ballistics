@@ -19,6 +19,8 @@ kf_apcbc = scaling factor for Capped Projectiles
 (MachPower / DMC) * 100 * knap * kf_apcbc
 
 Actual full formula:
+
+# start script
 extends Node
 
 func gun_go():
@@ -48,7 +50,7 @@ func gun_go():
     var result = (((pow(speed, 1.43) * pow(mass, 0.71)) / (pow(kfbr, 1.43) * pow(caliber / 100, 1.07))) * 100 * knap * kf_apcbc)
 
 
-#end script
+# end script
 
 https://discussions.unity.com/t/free-bullet-ballistics-script-pejsa-method/634432
 
