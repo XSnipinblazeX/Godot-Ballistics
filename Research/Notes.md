@@ -136,9 +136,11 @@ Fig 1B
 
 Right now (as of Aug 1 2024), the code has it so that if the shells energy into the plate doesnt exceed 30% of the energy required to penetrate, then it will ricochet (the main direction of the KE isnt into the plate so such circumstances work) if more than 30% of the KE is directed into the plate then either it will get stuck or penetrate. See Fig 1A.
 
-I will be working on more realistic ricochets but im too lazy for that right now Im working on getting shit running on web browsers lmao.
+
 
 https://discussions.unity.com/t/free-bullet-ballistics-script-pejsa-method/634432
 
 ^^this is a ballistic trajectory I find interesting for unity
+
+I will be working on more realistic ricochets but im too lazy for that right now Im working on getting shit running on web browsers lmao.
     
