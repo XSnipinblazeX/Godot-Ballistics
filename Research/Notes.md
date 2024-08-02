@@ -134,7 +134,7 @@ Have a look here (this is from my interpretation) shot number 2 had a little mor
 Fig 1B
 ![image](https://github.com/user-attachments/assets/e3fb1480-bf92-4454-a4e4-33be9baba038)
 
-Right now (as of Aug 1 2024), the code has it so that if the shells energy into the plate doesnt exceed 30% of the energy required to penetrate, then it will ricochet (the main direction of the KE isnt into the plate so such circumstances work) if more than 30% of the KE is directed into the plate then either it will get stuck or penetrate. See Fig 1A.
+Right now (as of Aug 1 2024), the code has it so that if the shells energy into the plate doesnt exceed 20% of the energy required to penetrate, then it will ricochet (the main direction of the KE isnt into the plate so such circumstances work) if more than 20% of the KE is directed into the plate then either it will get stuck or penetrate. See Fig 1A.
 
 
 
