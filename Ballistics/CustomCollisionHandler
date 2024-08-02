@@ -10,23 +10,25 @@ func armor_interation(mass, diameter, speed, yield_strength, thickness, angle) -
 		var p = false
 		var r = false
 		var s = false
-		
+		var KER = 1
 		var area = PI * ((diameter / 2) * (diameter / 2))
 		var result = {
 			"penetration": p,
 			"ricochet": r,
-			"stopped": s
+			"stopped": s,
+			"KER": KER
 		}
 		
-		var Vn = speed * cos(angle)
-		var eKn = 0.5 * mass * Vn * Vn
-		var Ep = thickness * area * yield_strength
-		result.p = eKn > Ep
+		var Vn = speed * cos(angle) # velocity of the shell into the armor
+		var eKn = 0.5 * mass * Vn * Vn #kinetic energy into the armor
+		var Ep = thickness * area * yield_strength # required KE to perforate the armor
+		result.p = eKn > Ep # did it pen?
 		print("KE penetrate? ", result.p)
-		result.r = eKn < Ep and (eKn / Ep) < 0.3
+		result.r = eKn < Ep and (eKn / Ep) < 0.3 # did it ricochet?
 		print("KE ricochet? ", result.r)
-		result.s = (eKn / Ep) > 0.3 and not result.p
+		result.s = (eKn / Ep) > 0.3 and not result.p # did it stop?
 		print("stopped? ", result.s)
+		result.KER = (eKn / Ep)
 		return result
 
 # Called when the node enters the scene tree for the first time.
@@ -50,15 +52,20 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration) ->
 		"active": active
 	}
 
-	#dummy thing
+	#Impact Angle
 	var theta = acos(abs(velocity.normalized().dot(_normal)))
 	print("Impact Angle (deg): ", rad_to_deg(theta))
-	var armorT = collider.get_penetration_resistance(theta)
+	var armorT = collider.get_penetration_resistance(theta) #gets relative armor thickness
 	print("Encountered: ", armorT, "mm")
-	
+
+	#what does the shell do
 	var armorResponse = armor_interation(object.mass, object.Dia, velocity.length(), collider.get_yield_strength(), collider.get_penetration_resistance(0), theta)
-	
-	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.0)):
+
+	#Did the plate spall?
+	if penetration >= (armorT * randf_range(0.7, 0.9)) or armorResponse.KER > 0.5:
+			print("spalled")
+	#what happened
+	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.3)): #did the shell penetrate to demarre or kinetic energy
 		collision_response.velocity = velocity * (1 - (armorT / penetration))
 		collision_response.spin = Vector3.ZERO
 		print("penetrated")
