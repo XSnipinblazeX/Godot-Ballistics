@@ -83,7 +83,7 @@ func _ready():
     velocity = iV * direction
     lastPos = global_transform.origin
     Active = false
-
+    airRes = 0.5 * Air_density * area
     #set up collision handler
     # Initialize the CollisionHandler
     
