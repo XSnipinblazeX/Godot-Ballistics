@@ -136,6 +136,8 @@ Fig 1B
 
 Right now (as of Aug 1 2024), the code has it so that if the shells energy into the plate doesnt exceed 20% of the energy required to penetrate, then it will ricochet (the main direction of the KE isnt into the plate so such circumstances work) if more than 20% of the KE is directed into the plate then either it will get stuck or penetrate. See Fig 1A.
 
+https://github.com/NashDrilla/WarThunder-ProjectileSimulation/tree/main
+
 
 
 https://discussions.unity.com/t/free-bullet-ballistics-script-pejsa-method/634432
