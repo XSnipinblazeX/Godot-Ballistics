@@ -1,12 +1,13 @@
 # Made by Aj8841 @ xsnipinblazex@gmail.com 
 
-# This is a very basic Ballistic trajectory with a *kind of* working hit detection
+# This is a very basic Ballistic trajectory with a *not* working hit detection
 # Simulates gravity, drag, and the magnus effect
 # This is all I deem necessary for a realistic trajectory for all types of projectiles.
 # Magnus effect simulates magnus and possibly spin drift, haven't seen it yet since I'm making this on Godot mobile
 # About 4/5 accurate when compared to my references using the F5 Sports Pitchlogic System
 #saves change in motion to json to reduce math workload
 # Updated 7/30/2024
+#updated 8/05/2024: Added penetration and spalling
 
 
 
@@ -221,7 +222,7 @@ func _physics_process(delta: float):
 		Active = false
 		lastHitTime = current_time
 		global_transform.origin = result.position
-		var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin, result.normal, get_pen_at_speed(velocity.length()))
+		var collision_response = collision_handler.handle_collision(self, result.collider, velocity, spin, result.normal, get_pen_at_speed(velocity.length()), result.position - result.collider.global_transform.origin)
 		print(collision_response)
 		velocity = Vector3.ZERO
 		velocity = collision_response["velocity"]
