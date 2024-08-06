@@ -1,6 +1,6 @@
 #This is the custom collision handling for the ballistic simulation
 #this contains all *possible* outcomes of a projectile interaction with another solid material
-
+#the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
 
 
 
@@ -43,6 +43,7 @@ func _explode_at_pos(pos, vehicle, shell, shellDir, velocity):
 	var angle = (85 / (velocity.length() / 1000)) / 2
 	print("APHE fragment angle: ", angle, " degrees")
 	vehicle.damage_control_node.apply_fragment_damage(pos, shellDir, angle, shell.tnt, shell.tnt * 3500)
+	vehicle.damage_control_node.apply_explosion_damage(pos, shell.tnt)
 	shell.queue_free()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
