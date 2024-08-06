@@ -1,6 +1,6 @@
 #This is the custom collision handling for the ballistic simulation
 #this contains all *possible* outcomes of a projectile interaction with another solid material
-#the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
+
 
 
 
@@ -21,17 +21,17 @@ func armor_interation(mass, diameter, speed, yield_strength, thickness, angle) -
 		
 		var Vn = speed * cos(angle)
 		var eKn = 0.5 * mass * Vn * Vn
-		print("Normal KE ", eKn)
+		#print("Normal KE ", eKn)
 		var Ep = thickness * area * yield_strength
-		print("Required KE divided by 100 ", Ep)
-		result.p = eKn > Ep
-		print("KE penetrate? ", result.p)
+		#print("Required KE divided by 100 ", Ep)
+		result.p = eKn >= ((Ep / 100) * 0.85)
+		#print("KE penetrate? ", result.p)
 		result.s = (eKn / (Ep / 100)) >= 0.2 and not result.p
 		result.r = (eKn / (Ep / 100)) < 0.2 and not result.s
-		print("KE ricochet? ", result.r)
-		print("stopped? ", result.s)
+		#print("KE ricochet? ", result.r)
+		#print("stopped? ", result.s)
 		result.KER = (eKn / (Ep / 100))
-		print("KER ", result.KER)
+		#print("KER ", result.KER)
 		return result
 
 # Called when the node enters the scene tree for the first time.
@@ -39,8 +39,15 @@ func _ready():
 	pass # Replace with function body.
 
 
+func _explode_at_pos(pos, vehicle, shell, shellDir, velocity):
+	var angle = (85 / (velocity.length() / 1000)) / 2
+	print("APHE fragment angle: ", angle, " degrees")
+	vehicle.damage_control_node.apply_fragment_damage(pos, shellDir, angle, shell.tnt, shell.tnt * 3500)
+	shell.queue_free()
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	
 	pass
 	
 func handle_collision(object, collider, velocity, spin, _normal, penetration, hitPos) -> Dictionary:
@@ -55,8 +62,12 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 		"active": active
 	}
 	var exitVector = velocity.normalized()
+	
 	#dummy thing
+	
 	var theta = acos(abs(velocity.normalized().dot(_normal)))
+	var fused = collider.fuse_shell(object.fuseSensitivity, theta)
+	print("Shell fused: ", fused)
 	print("Impact Angle (deg): ", rad_to_deg(theta))
 	var armorT = collider.get_penetration_resistance(theta)
 	print("Encountered: ", armorT, "mm")
@@ -66,15 +77,25 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 	
 	if penetration >= (armorT * randf_range(0.6, 0.7)) or armorResponse.KER > 0.5:
 			print("spalled")
-	
-	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.0)): #did the shell penetrate to demarre or kinetic energy
-		collision_response.velocity = velocity * abs(1 - (armorT / penetration))
-		collision_response.spin = Vector3.ZERO
-		print("penetrated")
-		var exitPos = hitPos + (velocity.normalized() * (armorT / 1000))
-		collision_response.active = true
-		collider.damage_control_node.apply_fragment_damage(exitPos, exitVector, 45, 0.5 * object.mass * velocity.length() * velocity.length(), armorT * 3500)
-		return collision_response
+			#did it get stuck? if the shell penetrated more than 80% of armor then the fuse will not have any chance of premature detonation
+			if depth < 0.8:
+				#now theres a chance of premature detonation 
+				if randi_range(0, 38) >= randi_range(0, 10000):
+					print("shell prematurely detonated")
+			if fused:
+				print("shell exploded correctly")
+				var pos = hitPos + (velocity.normalized() * object.fuseDistanceDelay)
+				_explode_at_pos(pos, collider, object, velocity.normalized(), velocity)
+			var exitPos = hitPos + (velocity.normalized() * (armorT / 1000))
+			collider.damage_control_node.apply_fragment_damage(exitPos, exitVector, 45, 0.5 * object.mass * velocity.length() * velocity.length(), armorT * 3500)
+			
+			if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.0)): #did the shell penetrate to demarre or kinetic energy
+				collision_response.velocity = velocity * abs(1 - (armorT / penetration))
+				collision_response.spin = Vector3.ZERO
+				print("penetrated")
+		
+			collision_response.active = true
+			return collision_response
 	if armorResponse.r and depth < 0.45:
 		print("ricochet")
 		# Example logic for bouncing off a surface
