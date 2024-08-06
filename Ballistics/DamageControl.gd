@@ -16,7 +16,7 @@ func get_cone_volume(angle):
 func calculate_damage(module_position, distance, base_damage, fragment_density):
 	var distance_factor = (1.0 / pow(distance, 0.25)) - 0.025
 	var density_factor = 1.0 / fragment_density
-	return clamp((base_damage * distance_factor * density_factor - 4501.96553907001), 0, 10e6)
+	return abs((base_damage * distance_factor * density_factor))
 	
 func is_within_cone(module_position, exit_vector, exit_position, cone_angle):
 	var v = (exit_vector.normalized())
