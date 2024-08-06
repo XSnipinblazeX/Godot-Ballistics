@@ -2,6 +2,8 @@
 
 #now takes into account spaced armor. The constructive angle is relative to the world space angle of the plate
 
+#default values are t26e4(WOT) or t26e1-1(WT) super pershing UFP 
+
 extends StaticBody3D
 
 # Property to define the armor plate's penetration resistance
