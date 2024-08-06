@@ -1,6 +1,3 @@
-#this is where all the modules are held and damage being accounted for. Theres no colliders, just a position and spall cone check. Its performant, damage is reliable, it should be better than WOT and better than WT
-
-
 extends Node3D
 @export var Modules = []
 @export var mdHP = []
@@ -8,6 +5,13 @@ extends Node3D
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
+
+func get_cone_volume(angle):
+	var radius = abs(10 / cos(angle))
+	var vol = PI * radius * radius * (10 / 3)
+	print("cone volume ", vol)
+	return vol
+	
 
 func calculate_damage(module_position, distance, base_damage, fragment_density):
 	var distance_factor = (1.0 / pow(distance, 0.25)) - 0.025
@@ -31,7 +35,9 @@ func apply_fragment_damage(exit_position, exit_vector, cone_angle, base_damage, 
 		var module_position = get_node(module).transform.origin
 		var distance = module_position.distance_to(exit_position) * 1000
 		if is_within_cone(module_position, exit_position, exit_vector, cone_angle):
-			var damage = calculate_damage(module_position, distance, base_damage, fragmentDensity)
+			var den = fragmentDensity / get_cone_volume(cone_angle)
+			print("new fragment density ", den)
+			var damage = calculate_damage(module_position, distance, base_damage, den)
 			print("module ", module, " experienced ", damage, " units of damage")
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
