@@ -1,7 +1,7 @@
 #This is the custom collision handling for the ballistic simulation
 #this contains all *possible* outcomes of a projectile interaction with another solid material
 #the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
-
+#this now takes into account spaced armor, AND module position for spalling (spalling is held in the damage control)
 
 
 extends Node
@@ -43,7 +43,7 @@ func _ready():
 func _process(delta):
 	pass
 	
-func handle_collision(object, collider, velocity, spin, _normal, penetration) -> Dictionary:
+func handle_collision(object, collider, velocity, spin, _normal, penetration, hitPos) -> Dictionary:
 	var penetrated = false
 	var depth = 0
 	var ricochet = false
@@ -54,25 +54,28 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration) ->
 		"spin": spin,
 		"active": active
 	}
-
+	var exitVector = velocity.normalized()
 	#dummy thing
 	var theta = acos(abs(velocity.normalized().dot(_normal)))
 	print("Impact Angle (deg): ", rad_to_deg(theta))
 	var armorT = collider.get_penetration_resistance(theta)
 	print("Encountered: ", armorT, "mm")
-	
+	depth = (penetration / armorT)
+	print("penetrated ", depth, " percent of armor")
 	var armorResponse = armor_interation(object.mass, object.Dia, velocity.length(), collider.get_yield_strength(), collider.get_penetration_resistance(0), theta)
 	
-	if penetration >= (armorT * randf_range(0.8, 0.9)) or armorResponse.KER > 0.5:
+	if penetration >= (armorT * randf_range(0.6, 0.7)) or armorResponse.KER > 0.5:
 			print("spalled")
 	
-	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.3)): #did the shell penetrate to demarre or kinetic energy
-		collision_response.velocity = velocity * (1 - (armorT / penetration))
+	if armorResponse.p or penetration >= (armorT * randf_range(0.7, 1.0)): #did the shell penetrate to demarre or kinetic energy
+		collision_response.velocity = velocity * abs(1 - (armorT / penetration))
 		collision_response.spin = Vector3.ZERO
 		print("penetrated")
+		var exitPos = hitPos + (velocity.normalized() * (armorT / 1000))
 		collision_response.active = true
+		collider.damage_control_node.apply_fragment_damage(exitPos, exitVector, 45, 0.5 * object.mass * velocity.length() * velocity.length(), (object.mass * object.mass * armorT * armorT * 100) / ((0.5 * object.mass * velocity.length() * velocity.length()) * depth))
 		return collision_response
-	if armorResponse.r:
+	if armorResponse.r and depth < 0.45:
 		print("ricochet")
 		# Example logic for bouncing off a surface
 		# Calculate the reflection of the velocity using the collision normal
@@ -91,7 +94,7 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration) ->
 		collision_response.active = true
 		# Update spin (simple inversion for now, can be more complex based on the surface)  # Invert spin for simplicity, reduce spin
 		return collision_response
-	if armorResponse.s:
+	else:
 		print("stopped")
 		collision_response.velocity = Vector3.ZERO
 		collision_response.spin = Vector3.ZERO
