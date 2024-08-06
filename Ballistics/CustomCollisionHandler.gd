@@ -1,7 +1,7 @@
 #This is the custom collision handling for the ballistic simulation
 #this contains all *possible* outcomes of a projectile interaction with another solid material
 #the main script will cache the ballistic data of the projecile and this script will read that to determine an outcome
-#this now takes into account spaced armor, AND module position for spalling (spalling is held in the damage control)
+
 
 
 extends Node
@@ -73,7 +73,7 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 		print("penetrated")
 		var exitPos = hitPos + (velocity.normalized() * (armorT / 1000))
 		collision_response.active = true
-		collider.damage_control_node.apply_fragment_damage(exitPos, exitVector, 45, 0.5 * object.mass * velocity.length() * velocity.length(), (object.mass * object.mass * armorT * armorT * 100) / ((0.5 * object.mass * velocity.length() * velocity.length()) * depth))
+		collider.damage_control_node.apply_fragment_damage(exitPos, exitVector, 45, 0.5 * object.mass * velocity.length() * velocity.length(), armorT * 3500)
 		return collision_response
 	if armorResponse.r and depth < 0.45:
 		print("ricochet")
