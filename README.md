@@ -24,6 +24,11 @@ According to the code, if the kinetic energy of the impact is high enough (impac
           >Magnus Effect
      >Terminal Ballistics     
           >Penetration
+
+# Currently Working On:
+     >Spall/Fragmentation
+     >Overpressure
+     >Modeling effects on crew members
   
 
 # To do:
