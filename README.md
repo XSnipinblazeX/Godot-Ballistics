@@ -4,6 +4,9 @@ Community Open source advanced Ballistic solution for Godot engine
 
 Anyone can edit and propose changes to the code. Just fork or create a pull request and I will either merge it to main or create a branch specifically for you
 
+# Saveable Trajectory is the latest version of the Ballistic Movement FYI
+
+
 # New (August 1st 2024)
      New armor simulation:
      >Penetrate
