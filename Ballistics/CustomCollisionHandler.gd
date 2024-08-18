@@ -64,7 +64,6 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 	}
 	var exitVector = velocity.normalized()
 	
-	#dummy thing
 	
 	var theta = acos(abs(velocity.normalized().dot(_normal)))
 	var fused = collider.fuse_shell(object.fuseSensitivity, theta)
@@ -82,7 +81,13 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 			if depth < 0.8:
 				#now theres a chance of premature detonation 
 				if randi_range(0, 38) >= randi_range(0, 10000):
-					print("shell prematurely detonated")
+					print("shell prematurely detonated") #2 in ten thousand or something like this. 
+				if depth < 0.5: #okay we can send fragments  backwards
+					_explode_at_pos(hitPos, collider, object, -velocity.normalized(), -velocity)
+					#invert the velocity for the explosion fragments
+				elif depth >= 0.5:
+					#penetrated more than halfway, explosion will not really do anything
+					return collision_response
 			if fused:
 				print("shell exploded correctly")
 				var pos = hitPos + (velocity.normalized() * object.fuseDistanceDelay)
@@ -122,4 +127,5 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 		collision_response.spin = Vector3.ZERO
 		collision_response.active = false
 		return collision_response
+		object.queue_free() #remove the object from scene
 	return collision_response
