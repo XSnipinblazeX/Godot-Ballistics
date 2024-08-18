@@ -30,6 +30,7 @@ According to the code, if the kinetic energy of the impact is high enough (impac
 
 # Currently Working On:
      >Spall/Fragmentation
+          >Mathematical Approach rather than Physical
      >Overpressure
      >Modeling effects on crew members
   
@@ -59,5 +60,5 @@ According to the code, if the kinetic energy of the impact is high enough (impac
                >Barrel Drooping?
 
 
-*spalling isnt implemented yet, but the events in which it should have been
+
 
