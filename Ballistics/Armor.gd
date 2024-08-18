@@ -6,6 +6,7 @@ extends StaticBody3D
 @export var penetration_resistance = [38.10, 38.1, 101.6]
 @export var constructiveArmorAngle = [3, -7, -14] # this is x plus the actual ingame rotation of the plate
 @export var distanceBetweenPlatesM = [0, 0.3, 0.3] # distance between plates in meters so we can find an exit point or determine if it even hits another plate in the array
+@export var PlateDimensions = [Vector2(2, 1), Vector2(2, 1), Vector2(2,1)] #Vector2 array for the height and width of the plate X is how wide, Y is how "tall"
 @export var yield_strength = [3.5e8, 3.5e8, 4.5e8]
 #default values are for super pershing UFP
 #yield strength values:
@@ -39,8 +40,9 @@ func fuse_shell(fuseSensitivity, angle) -> bool:
 		return fuseSensitivity <= (penetration_resistance[0] / cos(angle))
 
 # Method to get the penetration resistance
-func get_penetration_resistance(theta) -> float:
-	
+func get_penetration_resistance(theta, point) -> float:
+	var LocalSpacePoint = point - self.global_transform.origin # s0 we get the local hit point relative to the plate
+	print("Local Hit Point: ", LocalSpacePoint)
 	var armorThickness = 0
 	var index = 0
 	var distanceTraveled = 0
@@ -48,7 +50,7 @@ func get_penetration_resistance(theta) -> float:
 		var newDist = abs(distanceBetweenPlatesM[index] / cos(theta))
 		armorThickness += abs((armor / cos(theta + deg_to_rad(constructiveArmorAngle[index]))))
 		if(newDist > distanceBetweenPlatesM[index] * 2.5):
-			print("didnt hit other plates")
+			print("Exited armor array before hitting next plate")
 			return armorThickness
 		distanceTraveled += newDist
 		index += 1
