@@ -34,8 +34,8 @@ extends MeshInstance3D
 
 @export var tnt: float = 100.0 #mass of tnt in the shell if its aphe
 @export var capped = false #does the shell have a ballistic cap?
-
-
+@export var fuseSensitivity = 10 #sensitivity or minimum amount of Llos armor to penetrate before it fuses
+@export var fuseDelayDistance = 1.5 #variable name may not be correct, but this is the distance traveled before the fuse detonates.
 
 
 # Non-exported variables
