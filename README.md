@@ -8,6 +8,8 @@ Please make contributions, its hard enough as a solo dev working on this, any an
 
 # Saveable Trajectory is the latest version of the Ballistic Movement FYI
 
+all scripts are required for the system to work. BallisticMovement whatever is not, but everything else holds vital roles in the system. if you just download 1 script I do not guarantee it will work.
+
 
 # New (August 1st 2024)
      New armor simulation:
