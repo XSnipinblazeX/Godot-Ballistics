@@ -11,9 +11,12 @@ Please make contributions, its hard enough as a solo dev working on this, any an
 all scripts are required for the system to work. BallisticMovement whatever is not, but everything else holds vital roles in the system. if you just download 1 script I do not guarantee it will work.
 
 
-# New (August 1st 2024)
-     New armor simulation:
+# New (August 23st 2024)
+     armor simulation:
+     >premature detonation (1 in 5000 if armour is too thick)
      >Penetrate
+          >APHE explosion
+              >inert aphe (1 in 100000)
      >Ricochet
           >Richochet and Spall
      >Stopped
