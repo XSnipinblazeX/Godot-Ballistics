@@ -69,11 +69,11 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 	var fused = collider.fuse_shell(object.fuseSensitivity, theta)
 	print("Shell fused: ", fused)
 	print("Impact Angle (deg): ", rad_to_deg(theta))
-	var armorT = collider.get_penetration_resistance(theta)
+	var armorT = collider.get_penetration_resistance(theta, hitPos)
 	print("Encountered: ", armorT, "mm")
 	depth = (penetration / armorT)
 	print("penetrated ", depth, " percent of armor")
-	var armorResponse = armor_interation(object.mass, object.Dia, velocity.length(), collider.get_yield_strength(), collider.get_penetration_resistance(0), theta)
+	var armorResponse = armor_interation(object.mass, object.Dia, velocity.length(), collider.get_yield_strength(), collider.get_penetration_resistance(0, hitPos), theta)
 	
 	if penetration >= (armorT * randf_range(0.6, 0.7)) or armorResponse.KER > 0.5:
 			print("spalled")
