@@ -33,7 +33,8 @@ extends MeshInstance3D
 @export var file_path: String = "user://cached_data/"  # Editable path in Inspector
 
 @export var tnt: float = 100.0 #mass of tnt in the shell if its aphe
-@export var capped = false #does the shell have a ballistic cap?
+@export var capped = false #does the shell have a penetration cap?
+@export var ballisticCap = false #does it have a ballistic cap
 @export var fuseSensitivity = 10 #sensitivity or minimum amount of Llos armor to penetrate before it fuses
 @export var fuseDelayDistance = 1.5 #variable name may not be correct, but this is the distance traveled before the fuse detonates.
 
@@ -153,6 +154,8 @@ func Move(_pos: Vector3, _velocity: Vector3, delta: float, _returnNewPos=false, 
 	_velocity.y += GRAV * delta
 	
 	var drag_force = airRes * _velocity.length_squared() * linDamp
+	if ballisticCap:
+		drag_force *= 0.25
 	_velocity -= _velocity.normalized() * drag_force * delta * delta * time_step
 	
 	var magnus_force = (spin * rps) * (Dia / 2) / (mass * (_velocity.length() * 2))
