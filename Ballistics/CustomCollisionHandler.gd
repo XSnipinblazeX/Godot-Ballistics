@@ -6,6 +6,52 @@
 
 extends Node
 
+func get_lprot_sharp (mass, Vn, Llos, In, Ia, L) (not capped)
+    # mass in kg
+    # Vn is velocity at vector value (x, y, z)
+    # Llos is line of sight thickness at impact angle
+    # In is moment of inertia at vector value (x, y, z)
+    # Ia is impact angle in radians
+    # L is plate thickness 
+    Vn = abs(Vn)+
+
+    var keD = mass * Vn * Vn * (sin(Ia) * sin(Ia)) #tangential KE numerator
+    var KEt = 0.5 * keD # tangential KE 
+
+    var tD = (1 / Vn) * (Llos / 1000) #time to travel distance in direction at that velocity 
+
+    var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
+    var tN = In * sigma # torque at vector value
+    var wN = tN * tD # angular velocity
+    var theta = wN * tD # new angle at Time in rads
+    var L_prot = (L / cos(theta)) + Llos
+    var RHAe = L_prot / 2
+    return RHAe
+
+func get_lprot_blunt(mass, Vn, Llos, In, Ia, L) #blunt nose normalization (Capped)
+    # mass in kg
+    # Vn is velocity at vector value (x, y, z)
+    # Llos is line of sight thickness at impact angle
+    # In is moment of inertia at vector value (x, y, z)
+    # Ia is impact angle in radians
+    # L is plate thickness
+    Vn = abs(Vn)+
+
+    var keD = mass * Vn * Vn * (sin(Ia) * sin(Ia)) #tangential KE numerator
+    var KEt = 0.5 * keD # tangential KE 
+
+    var tD = (1 / Vn) * (Llos / 1000) #time to travel distance in direction at that velocity 
+
+    var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
+    var tN = In * sigma # torque at vector value
+    var wN = -tN * tD # angular velocity
+    var theta = wN * tD # new angle at Time in rads
+    var L_prot = Llos + (L / cos(theta))
+    var RHAe = L_prot / 2
+    return RHAe
+
+
+
 func armor_interation(mass, diameter, speed, yield_strength, thickness, angle) -> Dictionary:
 		var p = false
 		var r = false
@@ -70,6 +116,12 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 	print("Shell fused: ", fused)
 	print("Impact Angle (deg): ", rad_to_deg(theta))
 	var armorT = collider.get_penetration_resistance(theta, hitPos)
+        var I = Vector3(0.5, 0.5, 0.5)
+        var blunt = Vector3(get_lprot_blunt(mass, velocity.x, armorT, I.x, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_blunt(mass, velocity.y, armorT, I.y, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_blunt(mass, velocity.z, armorT, I.z, theta, collider.get_penetration_resistance(0, hitPos)))
+        var sharp = Vector3(get_lprot_sharp(mass, velocity.x, armorT, I.x, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_sharp(mass, velocity.y, armorT, I.y, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_sharp(mass, velocity.z, armorT, I.z, theta, collider.get_penetration_resistance(0, hitPos)))
+        print("sharp ", sharp, " blunt ", blunt)
+
+	
 	print("Encountered: ", armorT, "mm")
 	depth = (penetration / armorT)
 	print("penetrated ", depth, " percent of armor")
