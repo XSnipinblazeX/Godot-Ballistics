@@ -13,7 +13,7 @@ func get_lprot_sharp (mass, Vn, Llos, In, Ia, L): #(not capped)
     # In is moment of inertia at vector value (x, y, z)
     # Ia is impact angle in radians
     # L is plate thickness 
-    Vn = abs(Vn)+
+    Vn = abs(Vn)
 
     var keD = mass * Vn * Vn * (sin(Ia) * sin(Ia)) #tangential KE numerator
     var KEt = 0.5 * keD # tangential KE 
@@ -35,7 +35,7 @@ func get_lprot_blunt(mass, Vn, Llos, In, Ia, L): #blunt nose normalization (Capp
     # In is moment of inertia at vector value (x, y, z)
     # Ia is impact angle in radians
     # L is plate thickness
-    Vn = abs(Vn)+
+    Vn = abs(Vn)
 
     var keD = mass * Vn * Vn * (sin(Ia) * sin(Ia)) #tangential KE numerator
     var KEt = 0.5 * keD # tangential KE 
@@ -117,6 +117,7 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
 	print("Impact Angle (deg): ", rad_to_deg(theta))
 	var armorT = collider.get_penetration_resistance(theta, hitPos)
         var I = Vector3(0.5, 0.5, 0.5)
+        var mass = object.mass
         var blunt = Vector3(get_lprot_blunt(mass, velocity.x, armorT, I.x, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_blunt(mass, velocity.y, armorT, I.y, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_blunt(mass, velocity.z, armorT, I.z, theta, collider.get_penetration_resistance(0, hitPos)))
         var sharp = Vector3(get_lprot_sharp(mass, velocity.x, armorT, I.x, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_sharp(mass, velocity.y, armorT, I.y, theta, collider.get_penetration_resistance(0, hitPos)), get_lprot_sharp(mass, velocity.z, armorT, I.z, theta, collider.get_penetration_resistance(0, hitPos)))
         print("sharp ", sharp, " blunt ", blunt)
