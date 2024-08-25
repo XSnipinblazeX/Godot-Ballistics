@@ -6,7 +6,7 @@
 
 extends Node
 
-func get_lprot_sharp (mass, Vn, Llos, In, Ia, L) (not capped)
+func get_lprot_sharp (mass, Vn, Llos, In, Ia, L): #(not capped)
     # mass in kg
     # Vn is velocity at vector value (x, y, z)
     # Llos is line of sight thickness at impact angle
@@ -28,7 +28,7 @@ func get_lprot_sharp (mass, Vn, Llos, In, Ia, L) (not capped)
     var RHAe = L_prot / 2
     return RHAe
 
-func get_lprot_blunt(mass, Vn, Llos, In, Ia, L) #blunt nose normalization (Capped)
+func get_lprot_blunt(mass, Vn, Llos, In, Ia, L): #blunt nose normalization (Capped)
     # mass in kg
     # Vn is velocity at vector value (x, y, z)
     # Llos is line of sight thickness at impact angle
