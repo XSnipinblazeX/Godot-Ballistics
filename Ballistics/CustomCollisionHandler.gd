@@ -24,7 +24,7 @@ func get_lprot_sharp (mass, Vn, Llos, In, Ia, L): #(not capped)
     var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
     var tN = In * sigma # torque at vector value
     var wN = tN * tD # angular velocity
-    print("sharp ang", wN)
+    print("sharp ang", rad_to_deg(wN))
     var theta = wN * tD # new angle at Time in rads
     var L_prot = (L / cos(theta)) + Llos
     var RHAe = L_prot / 2
@@ -48,7 +48,7 @@ func get_lprot_blunt(mass, Vn, Llos, In, Ia, L): #blunt nose normalization (Capp
     var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
     var tN = In * sigma # torque at vector value
     var wN = tN * tD # angular velocity
-    print("blunt ang", wN)
+    print("blunt ang", rad_to_deg(wN))
     var theta = wN * tD # new angle at Time in rads
     var L_prot = Llos - (L / cos(theta))
     var RHAe = L_prot
@@ -133,7 +133,7 @@ func handle_collision(object, collider, velocity, spin, _normal, penetration, hi
        armorT = blunt.length() + (blunt.length() * multiplier)
     else:
        armorT = sharp.length() - (sharp.length() * multiplier)
-    print("sharp ", sharp.length() + (sharp.length() * multiplier), " blunt ", blunt.length() + (blunt.length() * multiplier)) 
+    
     print("Encountered: ", armorT, "mm")
     depth = (penetration / armorT)
     print("penetrated ", depth, " percent of armor")
