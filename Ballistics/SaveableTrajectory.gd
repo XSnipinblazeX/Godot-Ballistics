@@ -37,7 +37,8 @@ extends MeshInstance3D
 @export var ballisticCap = false #does it have a ballistic cap
 @export var fuseSensitivity = 10 #sensitivity or minimum amount of Llos armor to penetrate before it fuses
 @export var fuseDelayDistance = 1.5 #variable name may not be correct, but this is the distance traveled before the fuse detonates.
-
+@export var length = 0.2 #length of shell in meters
+@export var I = Vector3(0.5, 0.5, 0.5) #center of gravity and moment of inertia
 
 # Non-exported variables
 var airRes: float
