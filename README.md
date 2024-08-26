@@ -11,16 +11,12 @@ Please make contributions, its hard enough as a solo dev working on this, any an
 all scripts are required for the system to work. BallisticMovement whatever is not, but everything else holds vital roles in the system. if you just download 1 script I do not guarantee it will work.
 
 
-# New (August 23st 2024)
+# New (August 26st 2024)
      armor simulation:
-     >premature detonation (1 in 5000 if armour is too thick)
-     >Penetrate
-          >APHE explosion
-              >inert aphe (1 in 100000)
-     >Ricochet
-          >Richochet and Spall
-     >Stopped
-          >Stopped and Spall
+     >Effects of sloped armor
+          >Shell can deviate inside the plate
+          >Blunt noses are more effective against sloped armor
+          >longer shells as well
 
 According to the code, if the kinetic energy of the impact is high enough (impact energy relative to required perforation energy ~50 percent or more) or the shell penetrates enough of the armor (~70 to ~90 percent), the plate will spall*
 
@@ -36,28 +32,16 @@ According to the code, if the kinetic energy of the impact is high enough (impac
           >Penetration
 
 # Currently Working On:
-     >Spall/Fragmentation
-          >Mathematical Approach rather than Physical
-     >Overpressure
-     >Modeling effects on crew members
+     better shell dynamics
+     optimization
+     
   
 
 # To do:
-     >Fix Hit Detection # Fixed 7/31/24
-     >More advanced external ballistics?
-          >Temperature ?
-          >Wind?
-          >Coriolis?
-          >More Advanced Air Calculations?
-     >Bring heavy calculations into a preloaded graph per projectile (is that even possible in godot?) # yes fixed 7/30/24
-
-     >Database for projectiles
-
-
      >Terminal Ballistics
           >3D armor solution 
-          >Ricochet x WIP
-          >Spalling
+          >Ricochet
+          
      
      >Internal Ballistics
           >Powder Charge
