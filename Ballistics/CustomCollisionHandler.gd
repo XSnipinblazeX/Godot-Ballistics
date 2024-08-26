@@ -23,6 +23,7 @@ func get_lprot_sharp (mass, Vn, Llos, In, Ia, L): #(not capped)
     var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
     var tN = In * sigma # torque at vector value
     var wN = tN * tD # angular velocity
+    print("sharp ang", wN)
     var theta = wN * tD # new angle at Time in rads
     var L_prot = (L / cos(theta)) + Llos
     var RHAe = L_prot / 2
@@ -45,6 +46,7 @@ func get_lprot_blunt(mass, Vn, Llos, In, Ia, L): #blunt nose normalization (Capp
     var sigma = sqrt((2 * KEt) / In) / tD #angular acceleration 
     var tN = In * sigma # torque at vector value
     var wN = -tN * tD # angular velocity
+    print("blunt ang", wN)
     var theta = wN * tD # new angle at Time in rads
     var L_prot = Llos + (L / cos(theta))
     var RHAe = L_prot / 2
